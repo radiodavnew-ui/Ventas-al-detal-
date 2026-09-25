@@ -1,0 +1,6 @@
+{
+  "name": "Control de Ventas al Detal",
+  "description": "Aplicación para control de ventas al detal para tiendas con sonidos táctiles interactivos, gestión y modificación dinámica de categorías, catálogo con miniaturas, tasa de cambio en dólares y bolívares, selección rápida de métodos de pago, historial con filtros, reportes y exportación de recibos en imagen.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

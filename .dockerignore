@@ -1,0 +1,10 @@
+node_modules
+.git
+.gradle
+.kotlin
+build
+app
+gradle
+*.keystore*
+*.log
+.data

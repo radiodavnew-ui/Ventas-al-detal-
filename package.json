@@ -1,0 +1,21 @@
+{
+  "name": "control-de-ventas-al-detal",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.ts",
+    "start": "node server.ts",
+    "build:css": "npx -y tailwindcss@3 -o public/tailwind.min.css --content \"./public/**/*.{html,js},./src/**/*.{html,js}\" --minify",
+    "build:js": "node scripts/build.js",
+    "build:zip": "node scripts/create_zip.js",
+    "build": "node scripts/build.js"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^8.0.6",
+    "@babel/core": "^8.0.6",
+    "@babel/preset-env": "^8.0.6"
+  }
+}

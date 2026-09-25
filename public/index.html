@@ -1,0 +1,1834 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Control de Ventas al Detal</title>
+  <meta name="description" content="Aplicación para control de ventas al detal para tiendas con sonidos táctiles interactivos, gestión y modificación dinámica de categorías, catálogo con miniaturas, tasa de cambio en dólares y bolívares, selección rápida de métodos de pago, historial con filtros, reportes y exportación de recibos en imagen.">
+  <meta property="og:title" content="Control de Ventas al Detal">
+  <meta property="og:description" content="Aplicación para control de ventas al detal para tiendas con sonidos táctiles interactivos, gestión y modificación dinámica de categorías, catálogo con miniaturas, tasa de cambio en dólares y bolívares, selección rápida de métodos de pago, historial con filtros, reportes y exportación de recibos en imagen.">
+  
+  <!-- Material Symbols & Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+  <!-- Static Compiled Tailwind CSS (Instant load on Android 4 WebKit / Chromium 30) -->
+  <link rel="stylesheet" href="/tailwind.min.css">
+
+  <!-- Tailwind CSS CDN (Optional for modern runtime environments) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    if (window.tailwind) {
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+              mono: ['"JetBrains Mono"', 'monospace'],
+            },
+            colors: {
+              m3: {
+                surface: '#121214',
+                surfaceLight: '#F8F9FA',
+                cardDark: '#1E1E24',
+                cardLight: '#FFFFFF',
+                borderDark: '#2C2C34',
+                borderLight: '#E2E8F0',
+                textPrimaryDark: '#F1F5F9',
+                textSecondaryDark: '#94A3B8',
+                textPrimaryLight: '#0F172A',
+                textSecondaryLight: '#64748B',
+              },
+              accent: {
+                green: '#00E676',
+                greenHover: '#00C853',
+                greenBg: 'rgba(0, 230, 118, 0.12)',
+                cyan: '#00E5FF',
+                cyanHover: '#00B0FF',
+                cyanBg: 'rgba(0, 229, 255, 0.12)',
+              }
+            }
+          }
+        }
+      };
+    }
+  </script>
+  <style>
+    :root {
+      --accent-color: #00E676;
+      --accent-hover: #00C853;
+      --accent-rgb: 0, 230, 118;
+    }
+    body.theme-cyan {
+      --accent-color: #00E5FF;
+      --accent-hover: #00B0FF;
+      --accent-rgb: 0, 229, 255;
+    }
+    /* Fallback static colors for Android 4 WebKit / Chromium without CSS variables */
+    .custom-accent-text { color: #00E676; color: var(--accent-color, #00E676); }
+    .custom-accent-bg { background-color: #00E676; background-color: var(--accent-color, #00E676); }
+    .custom-accent-bg-subtle { background-color: rgba(0, 230, 118, 0.14); background-color: rgba(var(--accent-rgb, 0, 230, 118), 0.14); }
+    .custom-accent-border { border-color: #00E676; border-color: var(--accent-color, #00E676); }
+    
+    body.theme-cyan .custom-accent-text { color: #00E5FF; }
+    body.theme-cyan .custom-accent-bg { background-color: #00E5FF; }
+    body.theme-cyan .custom-accent-bg-subtle { background-color: rgba(0, 229, 255, 0.14); }
+    body.theme-cyan .custom-accent-border { border-color: #00E5FF; }
+
+    /* Android 4 Glassmorphism / Backdrop fallback */
+    .backdrop-blur-sm, .backdrop-blur-md {
+      background-color: rgba(18, 18, 22, 0.96) !important;
+    }
+
+    /* Android 4 CSS Grid fallback using Flexbox */
+    @supports not (display: grid) {
+      .grid {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-flex-wrap: wrap;
+        flex-wrap: wrap;
+      }
+      .grid-cols-2 > * {
+        width: 48%;
+        margin: 1%;
+      }
+      .grid-cols-3 > * {
+        width: 31.3%;
+        margin: 1%;
+      }
+      .grid-cols-4 > * {
+        width: 23%;
+        margin: 1%;
+      }
+    }
+    
+    /* Smooth custom scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.5); }
+    
+    /* Animation helper */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-enter {
+      animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body class="dark bg-[#121214] text-[#F1F5F9] font-sans min-h-screen flex flex-col transition-colors duration-200 selection:bg-[#00E676] selection:text-black">
+
+  <!-- TOP APP BAR (Material 3 Top App Bar) -->
+  <header id="top-app-bar" class="sticky top-0 z-30 bg-[#1E1E24]/95 dark:bg-[#1E1E24]/95 backdrop-blur-md border-b border-[#2C2C34] px-4 py-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
+      
+      <!-- Company Logo & Title (Top Left as requested) -->
+      <div class="flex items-center gap-3.5">
+        <div class="relative group">
+          <div id="company-logo-container" onclick="openLogoUploadModal()" title="Haga clic para cambiar logotipo" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#262630] border-2 border-[#3E3E4A] hover:border-[var(--accent-color)] flex items-center justify-center overflow-hidden cursor-pointer shadow-md hover:shadow-lg transition-all">
+            <img id="company-logo-img" src="" alt="Logotipo" class="w-full h-full object-cover hidden">
+            <span id="company-logo-placeholder" class="material-symbols-rounded text-4xl sm:text-5xl custom-accent-text transition-transform group-hover:scale-105">storefront</span>
+          </div>
+          <button onclick="openLogoUploadModal()" class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#141418] border border-[#3E3E4A] hover:border-[var(--accent-color)] text-xs flex items-center justify-center text-gray-300 hover:text-white shadow" title="Editar Logo">
+            <span class="material-symbols-rounded text-sm">edit</span>
+          </button>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 id="app-store-name" class="font-extrabold text-lg md:text-2xl tracking-tight text-white leading-tight">Mi Tienda</h1>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-[var(--accent-color)]/20 custom-accent-text border border-[var(--accent-color)]/30">POS</span>
+          </div>
+          <p id="app-store-subtitle" class="text-xs sm:text-sm text-gray-400">Control de Ventas al Detal</p>
+        </div>
+      </div>
+
+      <!-- Quick Actions: Exchange Rate, Theme & Language -->
+      <div class="flex items-center gap-2">
+        
+        <!-- Official Exchange Rate Chip -->
+        <button id="btn-exchange-rate" onclick="openExchangeRateModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#2C2C34] hover:bg-[#363640] border border-[#3E3E4A] text-xs transition-colors">
+          <span class="material-symbols-rounded text-base custom-accent-text">currency_exchange</span>
+          <span class="hidden sm:inline text-gray-300">Tasa:</span>
+          <span id="rate-display-badge" class="font-mono font-bold text-white">65.50 Bs/$</span>
+          <span class="material-symbols-rounded text-[14px] text-gray-400">edit</span>
+        </button>
+
+        <!-- Color Theme Switcher (Green vs Cyan vs Light) -->
+        <div class="relative">
+          <button id="btn-theme-switcher" onclick="cycleThemeColor()" title="Cambiar tema de acento" class="w-9 h-9 rounded-lg bg-[#2C2C34] hover:bg-[#363640] border border-[#3E3E4A] flex items-center justify-center text-gray-300 hover:text-white transition-colors">
+            <span class="material-symbols-rounded text-lg custom-accent-text">palette</span>
+          </button>
+        </div>
+
+        <!-- Sound Feedback Toggle (Sonidos Táctiles) -->
+        <!-- Direct APK Download Button -->
+        <a id="btn-download-apk-header" href="/download/app-debug.apk" download="ControlVentasTienda-debug.apk" title="Descargar APK Nativo para Android" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow flex items-center gap-1.5 cursor-pointer">
+          <span class="material-symbols-rounded text-base">android</span>
+          <span class="hidden md:inline text-[11px] font-black">Descargar APK</span>
+          <span class="material-symbols-rounded text-sm">download</span>
+        </a>
+
+        <!-- Compartir App / Wi-Fi Network Sync Button -->
+        <button id="btn-wifi-sync" onclick="openWifiSyncModal()" title="Compartir App con otros dispositivos (Sin pedir correo Google)" class="px-2.5 py-1.5 rounded-lg bg-[#2C2C34] hover:bg-[#363640] border border-[#3E3E4A] hover:border-emerald-500/50 text-xs font-bold text-gray-200 hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" id="wifi-dot"></span>
+          <span class="material-symbols-rounded text-base text-emerald-400">share</span>
+          <span class="text-[11px] font-bold" id="wifi-status-text">Compartir App</span>
+        </button>
+
+        <button id="btn-sound-toggle" onclick="toggleSound()" title="Sonidos táctiles" class="w-9 h-9 rounded-lg bg-[#2C2C34] hover:bg-[#363640] border border-[#3E3E4A] flex items-center justify-center text-gray-300 hover:text-white transition-colors">
+          <span id="icon-sound-toggle" class="material-symbols-rounded text-lg custom-accent-text">volume_up</span>
+        </button>
+
+        <!-- Dark / Light Mode Toggle -->
+        <button id="btn-dark-mode" onclick="toggleLightDarkMode()" title="Modo Oscuro / Claro" class="w-9 h-9 rounded-lg bg-[#2C2C34] hover:bg-[#363640] border border-[#3E3E4A] flex items-center justify-center text-gray-300 hover:text-white transition-colors">
+          <span id="icon-dark-mode" class="material-symbols-rounded text-lg">dark_mode</span>
+        </button>
+
+        <!-- Language Selector Button (ES / EN) -->
+        <button id="btn-language" onclick="toggleLanguage()" title="Cambiar Idioma / Change Language" class="px-2.5 py-1.5 rounded-lg bg-[#2C2C34] hover:bg-[#363640] border border-[#3E3E4A] text-xs font-bold text-gray-300 hover:text-white transition-colors flex items-center gap-1">
+          <span class="material-symbols-rounded text-sm">translate</span>
+          <span id="lang-label">ES</span>
+        </button>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN NAVIGATION TABS (Material 3 Segmented Bar) -->
+  <nav id="app-nav-tabs" class="bg-[#18181C] border-b border-[#2C2C34] px-4 py-2 sticky top-[61px] z-20">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-1 sm:gap-2">
+        <button id="tab-home" onclick="switchView('home')" class="nav-tab-btn active flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all custom-accent-bg text-black shadow-sm">
+          <span class="material-symbols-rounded text-lg">storefront</span>
+          <span data-i18n="nav_home">Inicio y Ventas</span>
+        </button>
+        <button id="tab-inventory" onclick="switchView('inventory')" class="nav-tab-btn flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-gray-400 hover:text-white hover:bg-[#262630] transition-all">
+          <span class="material-symbols-rounded text-lg text-amber-400">inventory_2</span>
+          <span>Inventario</span>
+          <span id="nav-inventory-badge" class="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300">14</span>
+        </button>
+        <button id="tab-history" onclick="switchView('history')" class="nav-tab-btn flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-gray-400 hover:text-white hover:bg-[#262630] transition-all">
+          <span class="material-symbols-rounded text-lg">receipt_long</span>
+          <span data-i18n="nav_history">Historial</span>
+        </button>
+        <button id="tab-reports" onclick="switchView('reports')" class="nav-tab-btn flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-gray-400 hover:text-white hover:bg-[#262630] transition-all">
+          <span class="material-symbols-rounded text-lg">analytics</span>
+          <span data-i18n="nav_reports">Reportes</span>
+        </button>
+      </div>
+
+      <!-- Quick Action: Register New Product (Hidden in terminal operator mode) -->
+      <button id="btn-header-add-product" onclick="openProductModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--accent-color)]/20 hover:bg-[var(--accent-color)]/30 border border-[var(--accent-color)]/40 custom-accent-text text-xs sm:text-sm font-bold transition-all shadow-sm">
+        <span class="material-symbols-rounded text-base font-bold">add</span>
+        <span data-i18n="btn_add_product">Nuevo Producto</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- APP CONTENT CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 pb-24">
+
+    <!-- VIEW 1: INICIO (HOME & SALES) -->
+    <div id="view-home" class="view-screen animate-enter space-y-6">
+      
+      <!-- Quick Action Toolbar: Small Daily & Weekly Report Buttons & Share -->
+      <div class="flex flex-wrap items-center justify-between gap-3 pb-1">
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1 mr-1">
+            <span class="material-symbols-rounded text-sm custom-accent-text">insights</span>
+            <span>Reportes:</span>
+          </span>
+          <!-- Botón Pequeño: Reporte Diario -->
+          <button id="btn-quick-report-daily" onclick="openQuickReportModal('daily')" title="Ver reporte de ventas de hoy" class="px-3 py-1.5 rounded-xl bg-[#1E1E24] hover:bg-[#2A2A34] border border-[#2C2C34] hover:border-[var(--accent-color)] text-xs font-semibold text-gray-200 hover:text-white flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer">
+            <span class="material-symbols-rounded text-sm custom-accent-text">today</span>
+            <span data-i18n="btn_daily_report">Reporte Diario</span>
+          </button>
+          <!-- Botón Pequeño: Reporte Semanal -->
+          <button id="btn-quick-report-weekly" onclick="openQuickReportModal('weekly')" title="Ver reporte y promedio semanal" class="px-3 py-1.5 rounded-xl bg-[#1E1E24] hover:bg-[#2A2A34] border border-[#2C2C34] hover:border-blue-400 text-xs font-semibold text-gray-200 hover:text-white flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer">
+            <span class="material-symbols-rounded text-sm text-blue-400">calendar_view_week</span>
+            <span data-i18n="btn_weekly_report">Reporte Semanal</span>
+          </button>
+
+          <!-- Acceso Directo Pequeño: Pantalla de Inventario -->
+          <button id="btn-quick-inventory" onclick="switchView('inventory')" title="Ir a la pantalla de inventario e insumos" class="px-3 py-1.5 rounded-xl bg-[#1E1E24] hover:bg-[#2A2A34] border border-amber-500/40 hover:border-amber-400 text-xs font-bold text-amber-300 hover:text-amber-200 flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer">
+            <span class="material-symbols-rounded text-sm text-amber-400">inventory_2</span>
+            <span>Inventario</span>
+            <span id="quick-inventory-badge" class="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300">14</span>
+          </button>
+        </div>
+
+        <!-- Direct Share Button for Reports -->
+        <button onclick="generateAndShareReportImage('daily')" title="Compartir reporte de hoy como imagen en WhatsApp" class="px-3 py-1.5 rounded-xl bg-[#1E1E24] hover:bg-[#2A2A34] border border-[#2C2C34] hover:border-[var(--accent-color)] text-xs font-semibold text-gray-200 hover:text-white flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer">
+          <span class="material-symbols-rounded text-sm custom-accent-text">share</span>
+          <span data-i18n="btn_share_report">Compartir Reporte</span>
+        </button>
+      </div>
+
+      <!-- CASILLA DE VENTAS (Solo se activa al seleccionar productos) -->
+      <div id="cart-active-container" class="hidden animate-enter bg-[#1E1E24] border-2 border-[var(--accent-color)]/70 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden transition-all">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#2C2C34]">
+          <div class="flex items-center gap-2.5">
+            <span class="relative flex h-3 w-3">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--accent-color)] opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-[var(--accent-color)]"></span>
+            </span>
+            <div class="flex items-center gap-2">
+              <span class="font-black text-sm sm:text-base text-white tracking-tight flex items-center gap-1.5">
+                <span class="material-symbols-rounded custom-accent-text text-xl">shopping_bag</span>
+                <span data-i18n="metric_cart_status">Venta en Curso</span>
+              </span>
+              <span id="cart-badge-count" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[var(--accent-color)] text-black">0 items</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 self-start sm:self-auto">
+            <button onclick="clearCart()" title="Vaciar y cancelar venta en curso" class="px-3 py-1.5 rounded-xl bg-[#282832] hover:bg-rose-950/40 text-gray-300 hover:text-rose-300 border border-[#3E3E4A] hover:border-rose-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer">
+              <span class="material-symbols-rounded text-sm text-rose-400">remove_shopping_cart</span>
+              <span>Vaciar Venta</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Selected Items Preview in Active Sale Box -->
+        <div id="cart-active-items-preview" class="py-3 max-h-48 overflow-y-auto space-y-2 pr-1">
+          <!-- Injected via JavaScript -->
+        </div>
+
+        <!-- Total Sum & Action Button -->
+        <div class="pt-3 border-t border-[#2C2C34] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Monto Total a Cobrar:</span>
+            <div class="flex items-baseline gap-2 mt-0.5">
+              <span id="cart-card-total-usd" class="text-2xl sm:text-3xl font-black text-white font-mono">$0.00</span>
+              <span id="cart-card-total-bs" class="text-sm font-bold custom-accent-text font-mono">(0.00 Bs.)</span>
+            </div>
+          </div>
+          <button id="btn-open-cart-checkout" onclick="openSaleCheckoutModal()" class="py-2.5 px-6 rounded-xl bg-[var(--accent-color)] hover:opacity-90 text-black font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-md cursor-pointer">
+            <span class="material-symbols-rounded text-lg">point_of_sale</span>
+            <span data-i18n="btn_checkout_now">Totalizar y Cobrar</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Catalog Header & Search/Filter Bar -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
+        <div>
+          <h2 class="text-lg sm:text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
+            <span class="material-symbols-rounded custom-accent-text">inventory_2</span>
+            <span data-i18n="catalog_title">Catálogo de Productos Disponibles</span>
+          </h2>
+          <p class="text-xs text-gray-400" data-i18n="catalog_subtitle">Presiona un producto para agregarlo a la venta actual</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Search Bar in Products -->
+          <div class="relative min-w-[170px] flex-1 sm:flex-initial">
+            <span class="material-symbols-rounded absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">search</span>
+            <input type="text" id="catalog-search" oninput="renderProductGrid()" placeholder="Buscar producto..." class="w-full pl-9 pr-3 py-2 rounded-xl bg-[#1E1E24] border border-[#2C2C34] text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[var(--accent-color)]">
+          </div>
+
+          <!-- Sort Selector (Ordenamiento según categoría y otros criterios) -->
+          <div class="flex items-center gap-1.5 bg-[#1E1E24] border border-[#2C2C34] rounded-xl px-2.5 py-1.5 text-xs text-gray-300">
+            <span class="material-symbols-rounded text-gray-400 text-base">sort</span>
+            <select id="catalog-sort" onchange="setProductSort(this.value)" class="bg-transparent text-white text-xs font-semibold focus:outline-none cursor-pointer pr-1">
+              <option value="category" class="bg-[#1E1E24] text-white" data-i18n="sort_category">Por Categoría (Predeterminado)</option>
+              <option value="category_asc" class="bg-[#1E1E24] text-white" data-i18n="sort_category_az">Categoría (A - Z)</option>
+              <option value="name_asc" class="bg-[#1E1E24] text-white" data-i18n="sort_name_asc">Nombre (A - Z)</option>
+              <option value="name_desc" class="bg-[#1E1E24] text-white" data-i18n="sort_name_desc">Nombre (Z - A)</option>
+              <option value="price_asc" class="bg-[#1E1E24] text-white" data-i18n="sort_price_asc">Precio (Menor a Mayor)</option>
+              <option value="price_desc" class="bg-[#1E1E24] text-white" data-i18n="sort_price_desc">Precio (Mayor a Menor)</option>
+              <option value="newest" class="bg-[#1E1E24] text-white" data-i18n="sort_newest">Más Recientes</option>
+            </select>
+          </div>
+
+          <!-- Manage Categories Button -->
+          <button id="btn-manage-categories" onclick="openCategoryManagerModal()" title="Modificar y ordenar categorías" class="px-3 py-2 rounded-xl bg-[#1E1E24] hover:bg-[#2C2C34] border border-[#2C2C34] hover:border-[var(--accent-color)]/50 text-gray-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors whitespace-nowrap shadow-sm">
+            <span class="material-symbols-rounded text-base custom-accent-text">category</span>
+            <span data-i18n="btn_manage_categories">Categorías</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Category Filter Pills Bar -->
+      <div id="catalog-category-pills" class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none py-1">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- Products Grid -->
+      <div id="products-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- Empty state if no products match -->
+      <div id="products-empty-state" class="hidden py-12 text-center text-gray-400 space-y-3">
+        <span class="material-symbols-rounded text-5xl text-gray-500">inventory</span>
+        <p class="text-sm font-medium" data-i18n="no_products_found">No se encontraron productos</p>
+        <button onclick="openProductModal()" class="px-4 py-2 rounded-xl bg-[var(--accent-color)] text-black font-bold text-xs">
+          + Agregar Nuevo Producto
+        </button>
+      </div>
+
+    </div>
+
+    <!-- VIEW 2: HISTORIAL DE VENTAS (SALES HISTORY) -->
+    <div id="view-history" class="view-screen hidden animate-enter space-y-6">
+      
+      <!-- Header with Search & Filter -->
+      <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg sm:text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
+            <span class="material-symbols-rounded custom-accent-text">history</span>
+            <span data-i18n="history_title">Historial Cronológico de Ventas</span>
+          </h2>
+          <p class="text-xs text-gray-400" data-i18n="history_subtitle">Registro detallado con opción de anular y compartir recibo en imagen</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Filter by payment method -->
+          <div class="flex items-center gap-1 bg-[#1E1E24] p-1 rounded-xl border border-[#2C2C34]">
+            <button onclick="setHistoryFilter('all')" class="history-filter-btn active text-xs font-semibold px-2.5 py-1 rounded-lg custom-accent-bg text-black transition-all">Todos</button>
+            <button onclick="setHistoryFilter('efectivo')" class="history-filter-btn text-xs text-gray-400 hover:text-white px-2.5 py-1 rounded-lg transition-all">Efectivo</button>
+            <button onclick="setHistoryFilter('pago_movil')" class="history-filter-btn text-xs text-gray-400 hover:text-white px-2.5 py-1 rounded-lg transition-all">Pago Móvil</button>
+            <button onclick="setHistoryFilter('punto_de_venta')" class="history-filter-btn text-xs text-gray-400 hover:text-white px-2.5 py-1 rounded-lg transition-all">Punto de Venta</button>
+          </div>
+
+          <!-- Search by keyword -->
+          <div class="relative">
+            <span class="material-symbols-rounded absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">search</span>
+            <input type="text" id="history-search" oninput="renderHistoryList()" placeholder="Buscar por cliente, producto..." class="pl-9 pr-3 py-1.5 rounded-xl bg-[#1E1E24] border border-[#2C2C34] text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[var(--accent-color)]">
+          </div>
+        </div>
+      </div>
+
+      <!-- History Sales List Table / Cards -->
+      <div id="history-sales-list" class="space-y-3">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- Empty state -->
+      <div id="history-empty-state" class="hidden py-16 text-center text-gray-400 space-y-3 bg-[#1E1E24] border border-[#2C2C34] rounded-2xl">
+        <span class="material-symbols-rounded text-5xl text-gray-500">receipt</span>
+        <p class="text-sm font-medium" data-i18n="history_empty">No hay ventas que coincidan con los filtros</p>
+      </div>
+
+    </div>
+
+    <!-- VIEW 3: REPORTES (REPORTS & ANALYSIS) -->
+    <div id="view-reports" class="view-screen hidden animate-enter space-y-6">
+      
+      <!-- Report Sub-Type Selector: Ventas vs Inventario -->
+      <div class="flex items-center gap-2 border-b border-[#2C2C34] pb-3">
+        <button id="btn-rep-tab-sales" onclick="switchReportSubtype('sales')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold custom-accent-bg text-black shadow-sm flex items-center gap-1.5 transition-all cursor-pointer">
+          <span class="material-symbols-rounded text-base">point_of_sale</span>
+          <span>Reporte de Ventas</span>
+        </button>
+        <button id="btn-rep-tab-inventory" onclick="switchReportSubtype('inventory')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-[#262630] hover:bg-[#30303C] text-gray-300 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer">
+          <span class="material-symbols-rounded text-base text-amber-400">inventory_2</span>
+          <span>Reporte de Inventario</span>
+        </button>
+      </div>
+
+      <!-- SUBVIEW A: REPORTE DE VENTAS -->
+      <div id="rep-subview-sales" class="space-y-6">
+        <!-- Reports Header -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg sm:text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
+              <span class="material-symbols-rounded custom-accent-text">bar_chart</span>
+              <span data-i18n="reports_title">Registro y Reporte de Ventas</span>
+            </h2>
+            <p class="text-xs text-gray-400" data-i18n="reports_subtitle">Desglose de acuerdo al tipo de pago y cálculo de promedios</p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <!-- Report Time Filter Tabs: Diarias, Semanales, Mensuales -->
+            <div class="flex items-center bg-[#1E1E24] p-1 rounded-xl border border-[#2C2C34]">
+              <button onclick="setReportPeriod('daily')" class="report-tab-btn active text-xs font-semibold px-3 py-1.5 rounded-lg custom-accent-bg text-black transition-all" data-i18n="rep_daily">Diarias</button>
+              <button onclick="setReportPeriod('weekly')" class="report-tab-btn text-xs text-gray-400 hover:text-white px-3 py-1.5 rounded-lg transition-all" data-i18n="rep_weekly">Semanales</button>
+              <button onclick="setReportPeriod('monthly')" class="report-tab-btn text-xs text-gray-400 hover:text-white px-3 py-1.5 rounded-lg transition-all" data-i18n="rep_monthly">Mensuales</button>
+            </div>
+
+            <!-- Share Report as Image Button -->
+            <button onclick="generateAndShareReportImage()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[var(--accent-color)] text-black text-xs font-bold shadow hover:opacity-90 transition-opacity cursor-pointer">
+              <span class="material-symbols-rounded text-base">image</span>
+              <span data-i18n="btn_share_report_img">Compartir Reporte de Ventas</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Report Summary Metric Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <div class="bg-[#1E1E24] border border-[#2C2C34] rounded-2xl p-4">
+            <p class="text-xs font-bold uppercase text-gray-400" data-i18n="rep_card_total">Total General del Período</p>
+            <h3 id="rep-metric-total-usd" class="text-2xl font-black text-white font-mono mt-1">$0.00</h3>
+            <p id="rep-metric-total-bs" class="text-xs text-gray-400 font-mono">0.00 Bs.</p>
+          </div>
+
+          <div class="bg-[#1E1E24] border border-[#2C2C34] rounded-2xl p-4">
+            <p class="text-xs font-bold uppercase text-emerald-400 flex items-center gap-1">
+              <span class="material-symbols-rounded text-sm">payments</span>
+              <span data-i18n="pay_cash">Efectivo</span>
+            </p>
+            <h3 id="rep-metric-cash-usd" class="text-xl font-black text-white font-mono mt-1">$0.00</h3>
+            <p id="rep-metric-cash-bs" class="text-xs text-gray-400 font-mono">0.00 Bs.</p>
+          </div>
+
+          <div class="bg-[#1E1E24] border border-[#2C2C34] rounded-2xl p-4">
+            <p class="text-xs font-bold uppercase text-sky-400 flex items-center gap-1">
+              <span class="material-symbols-rounded text-sm">phone_android</span>
+              <span data-i18n="pay_mobile">Pago Móvil</span>
+            </p>
+            <h3 id="rep-metric-pm-usd" class="text-xl font-black text-white font-mono mt-1">$0.00</h3>
+            <p id="rep-metric-pm-bs" class="text-xs text-gray-400 font-mono">0.00 Bs.</p>
+          </div>
+
+          <div class="bg-[#1E1E24] border border-[#2C2C34] rounded-2xl p-4">
+            <p class="text-xs font-bold uppercase text-violet-400 flex items-center gap-1">
+              <span class="material-symbols-rounded text-sm">credit_card</span>
+              <span data-i18n="pay_pos">Punto de Venta</span>
+            </p>
+            <h3 id="rep-metric-pos-usd" class="text-xl font-black text-white font-mono mt-1">$0.00</h3>
+            <p id="rep-metric-pos-bs" class="text-xs text-gray-400 font-mono">0.00 Bs.</p>
+          </div>
+
+        </div>
+
+        <!-- Payment Breakdown Visual Bars -->
+        <div class="bg-[#1E1E24] border border-[#2C2C34] rounded-2xl p-5 space-y-4">
+          <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+            <span class="material-symbols-rounded text-lg custom-accent-text">pie_chart</span>
+            <span data-i18n="rep_breakdown_title">Desglose de Ventas por Método de Pago</span>
+          </h3>
+
+          <!-- Multi-segment progress bar -->
+          <div class="h-3 w-full bg-[#121214] rounded-full overflow-hidden flex">
+            <div id="rep-bar-cash" style="width: 33%" class="bg-emerald-500 h-full transition-all" title="Efectivo"></div>
+            <div id="rep-bar-pm" style="width: 33%" class="bg-sky-500 h-full transition-all" title="Pago Móvil"></div>
+            <div id="rep-bar-pos" style="width: 34%" class="bg-violet-500 h-full transition-all" title="Punto de Venta"></div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-[#18181C] border border-[#2C2C34]">
+              <span class="w-3 h-3 rounded-full bg-emerald-500 shrink-0"></span>
+              <div>
+                <p class="text-xs text-gray-400" data-i18n="pay_cash">Efectivo</p>
+                <p id="rep-legend-cash" class="text-sm font-bold text-white font-mono">$0.00 (0%)</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-[#18181C] border border-[#2C2C34]">
+              <span class="w-3 h-3 rounded-full bg-sky-500 shrink-0"></span>
+              <div>
+                <p class="text-xs text-gray-400" data-i18n="pay_mobile">Pago Móvil</p>
+                <p id="rep-legend-pm" class="text-sm font-bold text-white font-mono">$0.00 (0%)</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-[#18181C] border border-[#2C2C34]">
+              <span class="w-3 h-3 rounded-full bg-violet-500 shrink-0"></span>
+              <div>
+                <p class="text-xs text-gray-400" data-i18n="pay_pos">Punto de Venta</p>
+                <p id="rep-legend-pos" class="text-sm font-bold text-white font-mono">$0.00 (0%)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chronological Report Records Table -->
+        <div class="bg-[#1E1E24] border border-[#2C2C34] rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider" data-i18n="rep_detail_list">Detalle de Operaciones en el Período</h3>
+            <span id="rep-count-badge" class="text-xs font-mono text-gray-400">0 operaciones</span>
+          </div>
+          <div id="rep-transactions-list" class="divide-y divide-[#2C2C34] overflow-x-auto">
+            <!-- Injected via JavaScript -->
+          </div>
+        </div>
+      </div>
+
+      <!-- SUBVIEW B: REPORTE DE INVENTARIO (SEPARADO) -->
+      <div id="rep-subview-inventory" class="hidden space-y-6">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg sm:text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
+              <span class="material-symbols-rounded text-amber-400">inventory_2</span>
+              <span>Reporte de Existencias e Insumos</span>
+            </h2>
+            <p class="text-xs text-gray-400">Estado de materias primas, alertas de stock mínimo y registro de mermas</p>
+          </div>
+
+          <div class="flex items-center gap-2 flex-wrap">
+            <!-- Share Inventory as WhatsApp Text -->
+            <button onclick="shareInventoryReportText()" title="Copiar o compartir texto formateado para WhatsApp" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow transition-all cursor-pointer">
+              <span class="material-symbols-rounded text-base">chat</span>
+              <span>Compartir Texto WhatsApp</span>
+            </button>
+            <!-- Share Inventory as Image -->
+            <button onclick="generateAndShareInventoryReportImage()" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold shadow transition-opacity cursor-pointer">
+              <span class="material-symbols-rounded text-base">image</span>
+              <span>Compartir Reporte de Inventario</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Inventory Summary Metrics Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-[#1E1E24] border border-[#2C2C34] rounded-2xl p-4">
+            <p class="text-xs font-bold uppercase text-gray-400">Total Insumos</p>
+            <h3 id="rep-inv-metric-total" class="text-2xl font-black text-white font-mono mt-1">14</h3>
+            <p class="text-xs text-gray-400">Categorías activas</p>
+          </div>
+          <div class="bg-[#1E1E24] border border-[#2C2C34] rounded-2xl p-4">
+            <p class="text-xs font-bold uppercase text-emerald-400">Stock Óptimo</p>
+            <h3 id="rep-inv-metric-optimal" class="text-2xl font-black text-emerald-400 font-mono mt-1">14</h3>
+            <p class="text-xs text-gray-400">Sin riesgo de desabastecimiento</p>
+          </div>
+          <div class="bg-[#1E1E24] border border-[#2C2C34] rounded-2xl p-4">
+            <p class="text-xs font-bold uppercase text-amber-400">Stock Bajo / Crítico</p>
+            <h3 id="rep-inv-metric-low" class="text-2xl font-black text-amber-400 font-mono mt-1">0</h3>
+            <p class="text-xs text-gray-400">Insumos bajo el límite mínimo</p>
+          </div>
+          <div class="bg-[#1E1E24] border border-[#2C2C34] rounded-2xl p-4">
+            <p class="text-xs font-bold uppercase text-rose-400">Mermas Reportadas</p>
+            <h3 id="rep-inv-metric-damages" class="text-2xl font-black text-rose-400 font-mono mt-1">0</h3>
+            <p class="text-xs text-gray-400">Ingredientes dañados</p>
+          </div>
+        </div>
+
+        <!-- Inventory Items Detail Table -->
+        <div class="bg-[#1E1E24] border border-[#2C2C34] rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <span class="material-symbols-rounded text-amber-400 text-base">format_list_bulleted</span>
+              <span>Existencias Detalladas de Insumos</span>
+            </h3>
+            <span id="rep-inv-count-badge" class="text-xs font-mono text-gray-400">14 insumos</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-gray-300">
+              <thead class="bg-[#18181C] text-gray-400 uppercase text-[10px] tracking-wider border-b border-[#2C2C34]">
+                <tr>
+                  <th class="py-2.5 px-3">Insumo</th>
+                  <th class="py-2.5 px-3">Categoría</th>
+                  <th class="py-2.5 px-3">Stock Actual</th>
+                  <th class="py-2.5 px-3">Alerta Mínima</th>
+                  <th class="py-2.5 px-3">Estado</th>
+                </tr>
+              </thead>
+              <tbody id="rep-inv-tbody" class="divide-y divide-[#2C2C34]">
+                <!-- Injected via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Recent Damages Summary Table in Report -->
+        <div class="bg-[#1E1E24] border border-[#2C2C34] rounded-2xl p-5 space-y-3">
+          <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+            <span class="material-symbols-rounded text-rose-400 text-base">delete_sweep</span>
+            <span>Resumen de Ingredientes Dañados y Mermas</span>
+          </h3>
+          <div id="rep-inv-damages-list" class="divide-y divide-[#2C2C34] overflow-x-auto">
+            <!-- Injected via JavaScript -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- VIEW 4: INVENTARIO & INSUMOS (INVENTORY & RAW MATERIALS) -->
+    <div id="view-inventory" class="view-screen hidden animate-enter space-y-6">
+      
+      <!-- Inventory Header & Action Buttons -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="text-lg sm:text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
+            <span class="material-symbols-rounded text-amber-400">inventory_2</span>
+            <span>Control de Inventario & Materia Prima</span>
+          </h2>
+          <p class="text-xs text-gray-400">Descuento automático por ventas de hamburguesas, perros calientes y bebidas</p>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <!-- Button: Report Damaged / Merma -->
+          <button onclick="openReportDamageModal()" title="Reportar ingredientes dañados o merma" class="px-3 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer">
+            <span class="material-symbols-rounded text-base text-rose-400">report_problem</span>
+            <span>Reportar Dañado / Merma</span>
+          </button>
+
+          <!-- Button: Add New Insumo (Hidden in operator terminal mode) -->
+          <button id="btn-inv-add-product" onclick="openAddInventoryModal()" title="Registrar nuevo insumo al inventario" class="px-3 py-2 rounded-xl bg-[var(--accent-color)] text-black text-xs font-bold transition-opacity hover:opacity-90 flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer">
+            <span class="material-symbols-rounded text-base">add_box</span>
+            <span>Agregar al Inventario</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Inventory Metrics Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="bg-[#1E1E24] border border-[#2C2C34] rounded-2xl p-4">
+          <p class="text-[11px] font-bold uppercase text-gray-400 flex items-center gap-1">
+            <span class="material-symbols-rounded text-sm text-amber-400">all_inbox</span>
+            <span>Total Insumos</span>
+          </p>
+          <h3 id="inv-metric-total-items" class="text-2xl font-black text-white font-mono mt-1">14</h3>
+          <p class="text-[11px] text-gray-400 mt-0.5">Ingredientes registrados</p>
+        </div>
+
+        <div class="bg-[#1E1E24] border border-[#2C2C34] rounded-2xl p-4">
+          <p class="text-[11px] font-bold uppercase text-emerald-400 flex items-center gap-1">
+            <span class="material-symbols-rounded text-sm">check_circle</span>
+            <span>Stock Óptimo</span>
+          </p>
+          <h3 id="inv-metric-optimal" class="text-2xl font-black text-emerald-400 font-mono mt-1">14</h3>
+          <p class="text-[11px] text-gray-400 mt-0.5">Nivel adecuado</p>
+        </div>
+
+        <div class="bg-[#1E1E24] border border-[#2C2C34] rounded-2xl p-4">
+          <p class="text-[11px] font-bold uppercase text-amber-400 flex items-center gap-1">
+            <span class="material-symbols-rounded text-sm">warning</span>
+            <span>Stock Bajo / Agotado</span>
+          </p>
+          <h3 id="inv-metric-low" class="text-2xl font-black text-amber-400 font-mono mt-1">0</h3>
+          <p class="text-[11px] text-gray-400 mt-0.5">Requieren reposición</p>
+        </div>
+
+        <div class="bg-[#1E1E24] border border-[#2C2C34] rounded-2xl p-4">
+          <p class="text-[11px] font-bold uppercase text-rose-400 flex items-center gap-1">
+            <span class="material-symbols-rounded text-sm">delete_sweep</span>
+            <span>Mermas / Dañados</span>
+          </p>
+          <h3 id="inv-metric-damages" class="text-2xl font-black text-rose-400 font-mono mt-1">0</h3>
+          <p id="inv-metric-damages-sub" class="text-[11px] text-gray-400 mt-0.5">0 eventos reportados</p>
+        </div>
+      </div>
+
+      <!-- Inventory Sub-Tabs & Filter Bar -->
+      <div class="bg-[#1E1E24] border border-[#2C2C34] rounded-2xl p-3 sm:p-4 space-y-3">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <!-- Subtabs: Existencias vs Mermas -->
+          <div class="flex items-center bg-[#18181C] p-1 rounded-xl border border-[#2C2C34]">
+            <button id="btn-inv-subtab-stock" onclick="switchInventorySubtab('stock')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold custom-accent-bg text-black transition-all cursor-pointer">
+              Existencias de Insumos
+            </button>
+            <button id="btn-inv-subtab-damages" onclick="switchInventorySubtab('damages')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white transition-all flex items-center gap-1 cursor-pointer">
+              <span>Historial de Mermas</span>
+              <span id="inv-damages-count-badge" class="px-1.5 py-0.2 text-[10px] rounded-full bg-rose-500/30 text-rose-300 font-bold">0</span>
+            </button>
+          </div>
+
+          <!-- Quick Search -->
+          <div class="relative w-full sm:w-64">
+            <span class="material-symbols-rounded absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">search</span>
+            <input type="text" id="inv-search-input" oninput="handleInventorySearch(this.value)" placeholder="Buscar insumo..." class="w-full pl-9 pr-3 py-1.5 rounded-xl bg-[#121214] border border-[#2C2C34] text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-400">
+          </div>
+        </div>
+
+        <!-- Category Pills for Inventory -->
+        <div id="inv-category-pills" class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+
+      <!-- INVENTORY VIEW SUBSECTION 1: STOCK LIST / CARDS -->
+      <div id="inv-container-stock" class="space-y-3">
+        <div id="inv-items-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <!-- Injected via JavaScript -->
+        </div>
+        <div id="inv-empty-stock" class="hidden py-12 text-center text-gray-400 bg-[#1E1E24] border border-[#2C2C34] rounded-2xl">
+          <span class="material-symbols-rounded text-4xl text-gray-500">inventory</span>
+          <p class="text-xs font-medium mt-1">No se encontraron insumos con este filtro</p>
+        </div>
+      </div>
+
+      <!-- INVENTORY VIEW SUBSECTION 2: DAMAGED ITEMS LOG -->
+      <div id="inv-container-damages" class="hidden bg-[#1E1E24] border border-[#2C2C34] rounded-2xl p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <span class="material-symbols-rounded text-rose-400 text-base">report_problem</span>
+              <span>Historial de Productos e Ingredientes Dañados / Mermas</span>
+            </h3>
+            <p class="text-xs text-gray-400 mt-0.5">Todos los productos reportados han sido descontados directamente del inventario</p>
+          </div>
+          <button onclick="openReportDamageModal()" class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all shadow cursor-pointer">
+            + Nuevo Reporte
+          </button>
+        </div>
+
+        <div id="inv-damages-table-container" class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-gray-300">
+            <thead class="bg-[#18181C] text-gray-400 uppercase text-[10px] tracking-wider border-b border-[#2C2C34]">
+              <tr>
+                <th class="py-2.5 px-3">Fecha y Hora</th>
+                <th class="py-2.5 px-3">Insumo / Ingrediente</th>
+                <th class="py-2.5 px-3">Cantidad Descontada</th>
+                <th class="py-2.5 px-3">Motivo / Causa</th>
+                <th class="py-2.5 px-3">Reportado Por</th>
+              </tr>
+            </thead>
+            <tbody id="inv-damages-tbody" class="divide-y divide-[#2C2C34]">
+              <!-- Injected via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+        <div id="inv-damages-empty" class="py-8 text-center text-gray-500">
+          <span class="material-symbols-rounded text-3xl">check_circle</span>
+          <p class="text-xs mt-1">No hay ingredientes dañados o mermas reportadas</p>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FLOATING ACTION BUTTON (Prominent "+" Button on Home) -->
+  <div id="fab-add-container" class="fixed bottom-6 right-6 z-20">
+    <button onclick="openProductModal()" title="Añadir nuevo producto (+)" class="w-14 h-14 rounded-2xl bg-[var(--accent-color)] hover:opacity-90 text-black shadow-xl shadow-[var(--accent-color)]/20 flex items-center justify-center transition-transform hover:scale-105 active:scale-95">
+      <span class="material-symbols-rounded text-3xl font-black">add</span>
+    </button>
+  </div>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- 1. SALE IN-PROGRESS & CHECKOUT MODAL -->
+  <div id="modal-sale-checkout" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#1E1E24] border border-[#3E3E4A] rounded-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-enter">
+      
+      <!-- Modal Header -->
+      <div class="p-4 sm:p-5 border-b border-[#2C2C34] flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-rounded custom-accent-text text-2xl">shopping_cart_checkout</span>
+          <div>
+            <h3 class="font-extrabold text-base sm:text-lg text-white" data-i18n="modal_sale_title">Venta en Proceso</h3>
+            <p class="text-xs text-gray-400" data-i18n="modal_sale_subtitle">Indica productos y selecciona método de pago</p>
+          </div>
+        </div>
+        <button onclick="closeSaleModal()" class="w-8 h-8 rounded-lg bg-[#2C2C34] hover:bg-[#363640] text-gray-400 hover:text-white flex items-center justify-center">
+          <span class="material-symbols-rounded text-lg">close</span>
+        </button>
+      </div>
+
+      <!-- Modal Body (Cart Items List) -->
+      <div class="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
+        
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-xs font-bold text-gray-400 uppercase tracking-wider">
+            <span data-i18n="cart_products_heading">Productos en la Venta:</span>
+            <span id="modal-cart-items-count">0 items</span>
+          </div>
+
+          <div id="modal-cart-items-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+            <!-- Injected via JavaScript -->
+          </div>
+        </div>
+
+        <!-- Add Another Product Prompt (Required by user) -->
+        <div class="p-3 rounded-xl bg-[#18181C] border border-[#2C2C34] flex items-center justify-between">
+          <div class="text-xs text-gray-300">
+            <span class="material-symbols-rounded text-sm custom-accent-text align-middle mr-1">help</span>
+            <span data-i18n="prompt_add_another">¿Deseas agregar otro producto antes de totalizar?</span>
+          </div>
+          <button onclick="openProductSelectorForSale()" class="px-2.5 py-1 rounded-lg bg-[#2C2C34] hover:bg-[#3E3E4A] text-xs font-semibold text-white transition-colors flex items-center gap-1">
+            <span class="material-symbols-rounded text-sm">add</span>
+            <span data-i18n="btn_add_more">Agregar otro</span>
+          </button>
+        </div>
+
+        <!-- Total Sum Breakdown ($ and Bs) -->
+        <div class="p-4 rounded-xl bg-[#141418] border border-[#2C2C34] space-y-1">
+          <div class="flex items-center justify-between text-xs text-gray-400">
+            <span data-i18n="lbl_subtotal">Suma Total de Productos:</span>
+            <span id="modal-sale-subtotal-items" class="font-mono text-gray-300">0 unid.</span>
+          </div>
+          <div class="flex items-baseline justify-between pt-1">
+            <span class="font-bold text-sm text-white" data-i18n="lbl_total_pay">Monto Total a Cobrar:</span>
+            <div class="text-right">
+              <div id="modal-sale-total-usd" class="text-2xl font-black text-white font-mono">$0.00</div>
+              <div id="modal-sale-total-bs" class="text-sm font-bold custom-accent-text font-mono">0.00 Bs.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Method Selection (Efectivo, Pago Móvil, Punto de Venta) -->
+        <div class="space-y-2">
+          <label class="block text-xs font-bold uppercase text-gray-400 tracking-wider" data-i18n="lbl_select_payment">
+            ¿Cuál es el método de pago del cliente?
+          </label>
+          <div class="grid grid-cols-3 gap-2">
+            
+            <button type="button" onclick="selectPaymentMethod('efectivo')" id="pay-btn-efectivo" class="pay-method-btn p-3 rounded-xl bg-[#2C2C34] border border-[#3E3E4A] hover:border-emerald-500 text-center transition-all flex flex-col items-center justify-center gap-1">
+              <span class="material-symbols-rounded text-2xl text-emerald-400">payments</span>
+              <span class="text-xs font-bold text-white" data-i18n="pay_cash">Efectivo</span>
+            </button>
+
+            <button type="button" onclick="selectPaymentMethod('pago_movil')" id="pay-btn-pago_movil" class="pay-method-btn p-3 rounded-xl bg-[#2C2C34] border border-[#3E3E4A] hover:border-sky-500 text-center transition-all flex flex-col items-center justify-center gap-1">
+              <span class="material-symbols-rounded text-2xl text-sky-400">phone_android</span>
+              <span class="text-xs font-bold text-white" data-i18n="pay_mobile">Pago Móvil</span>
+            </button>
+
+            <button type="button" onclick="selectPaymentMethod('punto_de_venta')" id="pay-btn-punto_de_venta" class="pay-method-btn p-3 rounded-xl bg-[#2C2C34] border border-[#3E3E4A] hover:border-violet-500 text-center transition-all flex flex-col items-center justify-center gap-1">
+              <span class="material-symbols-rounded text-2xl text-violet-400">credit_card</span>
+              <span class="text-xs font-bold text-white" data-i18n="pay_pos">Punto de Venta</span>
+            </button>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer (Actions) -->
+      <div class="p-4 sm:p-5 border-t border-[#2C2C34] bg-[#18181C] flex flex-col sm:flex-row items-center justify-between gap-2">
+        <!-- Void active sale button (Anular Venta Fallida) -->
+        <button onclick="voidActiveSale()" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold transition-all flex items-center justify-center gap-1">
+          <span class="material-symbols-rounded text-base">cancel</span>
+          <span data-i18n="btn_void_sale">Anular Venta Fallida</span>
+        </button>
+
+        <!-- Finalize / Complete Sale -->
+        <button onclick="completeSale()" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[var(--accent-color)] hover:opacity-90 text-black text-xs sm:text-sm font-extrabold transition-all shadow-md flex items-center justify-center gap-2">
+          <span class="material-symbols-rounded text-base">check_circle</span>
+          <span data-i18n="btn_confirm_sale">Confirmar Venta</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 2. DIGITAL RECEIPT MODAL (With "Volver al Inicio" & "Compartir en Imagen") -->
+  <div id="modal-receipt" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#1E1E24] border border-[#3E3E4A] rounded-2xl max-w-md w-full overflow-hidden shadow-2xl animate-enter">
+      
+      <!-- Receipt Header -->
+      <div class="p-4 bg-[var(--accent-color)] text-black flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-rounded text-2xl">check_circle</span>
+          <div>
+            <h3 class="font-black text-base leading-tight" data-i18n="receipt_success_title">¡Venta Registrada con Éxito!</h3>
+            <p id="receipt-modal-id" class="text-xs font-mono font-bold opacity-80">Ticket #0001</p>
+          </div>
+        </div>
+        <button onclick="closeReceiptModalAndReset()" class="w-8 h-8 rounded-lg bg-black/10 hover:bg-black/20 flex items-center justify-center text-black">
+          <span class="material-symbols-rounded text-lg">close</span>
+        </button>
+      </div>
+
+      <!-- Receipt Content Viewable Preview -->
+      <div id="receipt-printable-card" class="p-5 bg-[#141418] border-b border-[#2C2C34] space-y-4 font-mono text-xs">
+        <div class="text-center pb-3 border-b border-dashed border-gray-700">
+          <h4 id="receipt-store-title" class="text-sm font-bold text-white">Mi Tienda</h4>
+          <p id="receipt-date-time" class="text-gray-400 text-[11px]">2026-09-21 12:00 PM</p>
+          <p class="text-gray-500 text-[10px]">Tasa de Cambio: <span id="receipt-rate-val">65.50 Bs/$</span></p>
+        </div>
+
+        <div class="space-y-1.5">
+          <div class="flex justify-between text-gray-400 font-bold text-[11px] pb-1 border-b border-gray-800">
+            <span>CANT / PRODUCTO</span>
+            <span>TOTAL</span>
+          </div>
+          <div id="receipt-items-container" class="space-y-1 text-gray-200">
+            <!-- Items injected here -->
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-dashed border-gray-700 space-y-1">
+          <div class="flex justify-between text-gray-300">
+            <span>Método de Pago:</span>
+            <span id="receipt-payment-method" class="font-bold uppercase text-white">EFECTIVO</span>
+          </div>
+          <div class="flex justify-between text-sm font-bold text-white pt-1">
+            <span>TOTAL USD:</span>
+            <span id="receipt-total-usd" class="font-black">$0.00</span>
+          </div>
+          <div class="flex justify-between text-xs font-bold custom-accent-text">
+            <span>TOTAL BS.:</span>
+            <span id="receipt-total-bs" class="font-black">0.00 Bs.</span>
+          </div>
+        </div>
+
+        <div class="text-center pt-2 text-[10px] text-gray-500">
+          *** Gracias por su compra ***
+        </div>
+      </div>
+
+      <!-- Action Buttons (Compartir Directo / Descargar / Nueva Venta) -->
+      <div class="p-4 bg-[#1E1E24] space-y-2">
+        <button onclick="shareReceiptAsImage()" class="w-full py-2.5 px-4 rounded-xl bg-[var(--accent-color)] hover:opacity-90 text-black font-extrabold text-xs flex items-center justify-center gap-2 transition-opacity shadow cursor-pointer">
+          <span class="material-symbols-rounded text-lg">share</span>
+          <span data-i18n="btn_share_receipt_image">Compartir Recibo (WhatsApp / Apps)</span>
+        </button>
+
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" onclick="downloadReceiptImage()" title="Descargar imagen en tu dispositivo" class="py-2 px-3 rounded-xl bg-[#2C2C34] hover:bg-[#363640] text-gray-300 hover:text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors border border-[#3E3E4A]">
+            <span class="material-symbols-rounded text-base">download</span>
+            <span>Descargar</span>
+          </button>
+          <button type="button" onclick="closeReceiptModalAndReset()" class="py-2 px-3 rounded-xl bg-[#2C2C34] hover:bg-[#363640] text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors border border-[#3E3E4A]">
+            <span class="material-symbols-rounded text-base">arrow_back</span>
+            <span data-i18n="btn_back_to_home_new_sale">Nueva Venta</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 3. PRODUCT REGISTRATION & EDIT FORM MODAL -->
+  <div id="modal-product-form" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#1E1E24] border border-[#3E3E4A] rounded-2xl max-w-md w-full overflow-hidden shadow-2xl animate-enter">
+      
+      <div class="p-4 sm:p-5 border-b border-[#2C2C34] flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-rounded custom-accent-text text-2xl">add_box</span>
+          <h3 id="product-modal-title" class="font-extrabold text-base text-white" data-i18n="prod_form_new_title">Registrar Nuevo Producto</h3>
+        </div>
+        <button onclick="closeProductModal()" class="w-8 h-8 rounded-lg bg-[#2C2C34] hover:bg-[#363640] text-gray-400 hover:text-white flex items-center justify-center">
+          <span class="material-symbols-rounded text-lg">close</span>
+        </button>
+      </div>
+
+      <form id="product-form" onsubmit="handleProductSubmit(event)" class="p-4 sm:p-5 space-y-4">
+        <input type="hidden" id="product-form-id" value="">
+
+        <!-- Product Image Thumbnail & Picker -->
+        <div>
+          <label class="block text-xs font-bold uppercase text-gray-400 mb-1" data-i18n="lbl_prod_photo">Foto / Miniatura del Producto</label>
+          <div class="flex items-center gap-3">
+            <div id="prod-preview-box" class="w-16 h-16 rounded-xl bg-[#141418] border border-[#2C2C34] flex items-center justify-center overflow-hidden shrink-0">
+              <img id="prod-preview-img" src="" class="w-full h-full object-cover hidden">
+              <span id="prod-preview-icon" class="material-symbols-rounded text-2xl text-gray-500">image</span>
+            </div>
+            <div class="space-y-1 flex-1">
+              <div class="flex items-center gap-2">
+                <input type="file" id="prod-photo-file" accept="image/*" onchange="handleProductPhotoChange(event)" class="hidden">
+                <button type="button" onclick="document.getElementById('prod-photo-file').click()" class="px-3 py-1.5 rounded-lg bg-[#2C2C34] hover:bg-[#363640] border border-[#3E3E4A] text-xs font-medium text-white transition-colors flex items-center gap-1.5">
+                  <span class="material-symbols-rounded text-sm">upload</span>
+                  <span data-i18n="btn_choose_image">Seleccionar Imagen</span>
+                </button>
+                <button type="button" id="btn-remove-prod-photo" onclick="removeProductPhoto()" title="Quitar imagen" class="hidden px-2 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-xs text-red-400 flex items-center justify-center transition-colors">
+                  <span class="material-symbols-rounded text-base">delete</span>
+                </button>
+              </div>
+              <p class="text-[10px] text-gray-500" data-i18n="prod_image_persists">Se guardará de forma local sin borrarse</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Name -->
+        <div>
+          <label class="block text-xs font-bold uppercase text-gray-400 mb-1" data-i18n="lbl_prod_name">Nombre del Producto *</label>
+          <input type="text" id="prod-name" required placeholder="Ej. Harina PAN 1kg" class="w-full px-3 py-2 rounded-xl bg-[#141418] border border-[#2C2C34] text-xs sm:text-sm text-white focus:outline-none focus:border-[var(--accent-color)]">
+        </div>
+
+        <!-- Product Price in USD & Live Bs Calculation -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-400 mb-1" data-i18n="lbl_price_usd">Precio en Dólares ($) *</label>
+            <input type="number" id="prod-price-usd" step="0.01" min="0" required oninput="updateFormBsPrice()" placeholder="1.50" class="w-full px-3 py-2 rounded-xl bg-[#141418] border border-[#2C2C34] text-xs sm:text-sm font-mono text-white focus:outline-none focus:border-[var(--accent-color)]">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-400 mb-1" data-i18n="lbl_price_bs">Precio en Bolívares (Bs.)</label>
+            <input type="text" id="prod-price-bs" readonly class="w-full px-3 py-2 rounded-xl bg-[#18181C] border border-[#2C2C34] text-xs sm:text-sm font-mono text-gray-400 cursor-not-allowed">
+          </div>
+        </div>
+
+        <!-- Category & Date -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs font-bold uppercase text-gray-400" data-i18n="lbl_category">Categoría</label>
+              <button type="button" onclick="openCategoryManagerModal()" class="text-[11px] custom-accent-text hover:underline flex items-center gap-0.5">
+                <span class="material-symbols-rounded text-[13px]">edit_note</span>
+                <span data-i18n="btn_edit_cats">Modificar</span>
+              </button>
+            </div>
+            <select id="prod-category" onchange="handleCategoryChange(this.value)" class="w-full px-3 py-2 rounded-xl bg-[#141418] border border-[#2C2C34] text-xs text-white focus:outline-none focus:border-[var(--accent-color)]">
+              <!-- Dynamically populated from state.categories -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-400 mb-1" data-i18n="lbl_date">Fecha de Registro</label>
+            <input type="date" id="prod-date" required class="w-full px-3 py-2 rounded-xl bg-[#141418] border border-[#2C2C34] text-xs font-mono text-white focus:outline-none focus:border-[var(--accent-color)]">
+          </div>
+        </div>
+
+        <!-- Combo Constituent Products Configuration (Visible when category is 'Combos') -->
+        <div id="combo-builder-section" class="hidden p-3.5 rounded-xl bg-[#141418] border border-amber-500/40 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <label class="block text-xs font-bold uppercase text-amber-400 flex items-center gap-1.5">
+              <span class="material-symbols-rounded text-sm">fastfood</span>
+              <span>Productos que conforman este Combo *</span>
+            </label>
+            <span class="text-[10px] text-amber-300 font-mono">Descuenta insumos</span>
+          </div>
+          <p class="text-[11px] text-gray-300 leading-snug">
+            Al vender este combo, se descontarán del inventario todos los ingredientes y materia prima de cada uno de los productos seleccionados a continuación:
+          </p>
+          <div id="combo-items-container" class="space-y-2">
+            <!-- Dynamic list of constituent products -->
+          </div>
+          <button type="button" onclick="addComboProductRow()" class="w-full py-2 px-3 rounded-lg bg-[#2C2C34] hover:bg-[#363640] border border-amber-500/30 text-xs font-bold text-amber-300 hover:text-white transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
+            <span class="material-symbols-rounded text-base">add_circle</span>
+            <span>+ Agregar Producto al Combo</span>
+          </button>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="pt-3 border-t border-[#2C2C34] flex items-center justify-between gap-2">
+          <button type="button" id="btn-delete-product-from-modal" onclick="handleDeleteFromEditModal()" class="hidden px-3.5 py-2 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 border border-rose-900/50 text-xs font-bold transition-all flex items-center gap-1.5">
+            <span class="material-symbols-rounded text-sm">delete</span>
+            <span>Eliminar</span>
+          </button>
+          <div class="flex items-center justify-end gap-2 ml-auto">
+            <button type="button" onclick="closeProductModal()" class="px-4 py-2 rounded-xl bg-[#2C2C34] hover:bg-[#363640] text-xs font-semibold text-gray-300">
+              Cancelar
+            </button>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-[var(--accent-color)] text-black font-extrabold text-xs hover:opacity-90 shadow">
+              Guardar Producto
+            </button>
+          </div>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- 4. QUICK REPORT & BREAKDOWN MODAL (Supports Daily & Weekly with Direct Share) -->
+  <div id="modal-today-breakdown" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#1E1E24] border border-[#3E3E4A] rounded-2xl max-w-md w-full overflow-hidden shadow-2xl animate-enter">
+      
+      <div class="p-4 sm:p-5 border-b border-[#2C2C34] flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-[var(--accent-color)]/20 flex items-center justify-center">
+            <span id="bd-report-icon" class="material-symbols-rounded custom-accent-text text-xl">pie_chart</span>
+          </div>
+          <div>
+            <h3 id="bd-report-title" class="font-extrabold text-base text-white" data-i18n="breakdown_today_title">Desglose de Ventas del Día</h3>
+            <p id="breakdown-today-date" class="text-xs text-gray-400 font-mono">Hoy</p>
+          </div>
+        </div>
+        <button onclick="closeTodayBreakdownModal()" class="w-8 h-8 rounded-lg bg-[#2C2C34] hover:bg-[#363640] text-gray-400 hover:text-white flex items-center justify-center cursor-pointer">
+          <span class="material-symbols-rounded text-lg">close</span>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4">
+        
+        <!-- Grand Total Highlight -->
+        <div class="p-4 rounded-xl bg-[#141418] border border-[#2C2C34] flex items-center justify-between">
+          <div>
+            <p id="bd-grand-total-label" class="text-xs text-gray-400 font-bold uppercase" data-i18n="lbl_grand_total">Total General de Ventas</p>
+            <p id="bd-grand-total-subtext" class="text-[11px] text-gray-500 font-mono">0 transacciones registradas</p>
+          </div>
+          <div class="text-right">
+            <h4 id="bd-grand-total-usd" class="text-2xl font-black text-white font-mono">$0.00</h4>
+            <p id="bd-grand-total-bs" class="text-xs font-bold custom-accent-text font-mono">0.00 Bs.</p>
+          </div>
+        </div>
+
+        <!-- Weekly Average Highlight (Visible only for weekly report) -->
+        <div id="bd-weekly-avg-container" class="hidden p-3 rounded-xl bg-blue-950/40 border border-blue-800/60 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-rounded text-blue-400 text-lg">trending_up</span>
+            <div>
+              <p class="text-xs font-bold text-blue-300">Promedio Diario (7 días):</p>
+              <p class="text-[10px] text-blue-400/80">Calculado sobre la última semana</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p id="bd-weekly-avg-usd" class="text-sm font-black text-white font-mono">$0.00 / día</p>
+            <p id="bd-weekly-avg-bs" class="text-xs font-bold text-blue-300 font-mono">0.00 Bs. / día</p>
+          </div>
+        </div>
+
+        <!-- Breakdown by Method -->
+        <div class="space-y-2.5">
+          <p class="text-xs font-bold uppercase text-gray-400 tracking-wider" data-i18n="lbl_by_method">Desglose por Método de Pago:</p>
+
+          <div class="p-3 rounded-xl bg-[#18181C] border border-[#2C2C34] flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="material-symbols-rounded text-emerald-400 text-xl">payments</span>
+              <div>
+                <p class="text-xs font-bold text-white" data-i18n="pay_cash">Efectivo</p>
+                <p id="bd-cash-ops" class="text-[10px] text-gray-400 font-mono">0 operaciones</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p id="bd-cash-usd" class="text-sm font-bold text-white font-mono">$0.00</p>
+              <p id="bd-cash-bs" class="text-xs text-gray-400 font-mono">0.00 Bs.</p>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-[#18181C] border border-[#2C2C34] flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="material-symbols-rounded text-sky-400 text-xl">phone_android</span>
+              <div>
+                <p class="text-xs font-bold text-white" data-i18n="pay_mobile">Pago Móvil</p>
+                <p id="bd-pm-ops" class="text-[10px] text-gray-400 font-mono">0 operaciones</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p id="bd-pm-usd" class="text-sm font-bold text-white font-mono">$0.00</p>
+              <p id="bd-pm-bs" class="text-xs text-gray-400 font-mono">0.00 Bs.</p>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-[#18181C] border border-[#2C2C34] flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="material-symbols-rounded text-violet-400 text-xl">credit_card</span>
+              <div>
+                <p class="text-xs font-bold text-white" data-i18n="pay_pos">Punto de Venta</p>
+                <p id="bd-pos-ops" class="text-[10px] text-gray-400 font-mono">0 operaciones</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p id="bd-pos-usd" class="text-sm font-bold text-white font-mono">$0.00</p>
+              <p id="bd-pos-bs" class="text-xs text-gray-400 font-mono">0.00 Bs.</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Action Footer: Direct Share, Go to Reports, and Close -->
+      <div class="p-4 bg-[#18181C] border-t border-[#2C2C34] space-y-2">
+        <div class="grid grid-cols-2 gap-2">
+          <!-- Botón Habilitado para Compartir Reporte -->
+          <button onclick="triggerShareFromQuickReport()" class="py-2.5 px-3 rounded-xl bg-[var(--accent-color)] hover:opacity-90 text-black font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer">
+            <span class="material-symbols-rounded text-base">share</span>
+            <span>Compartir Reporte</span>
+          </button>
+          <button onclick="goToReportsFromQuickModal()" class="py-2.5 px-3 rounded-xl bg-[#262630] hover:bg-[#343440] text-gray-200 hover:text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-[#3E3E4A]">
+            <span class="material-symbols-rounded text-base">bar_chart</span>
+            <span>Ver Completo</span>
+          </button>
+        </div>
+        <button onclick="closeTodayBreakdownModal()" class="w-full py-2 rounded-xl text-xs font-semibold text-gray-400 hover:text-white transition-colors cursor-pointer">
+          Cerrar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 5. EXCHANGE RATE MODAL -->
+  <div id="modal-exchange-rate" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#1E1E24] border border-[#3E3E4A] rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl animate-enter">
+      
+      <div class="p-4 border-b border-[#2C2C34] flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-rounded custom-accent-text text-xl">currency_exchange</span>
+          <h3 class="font-extrabold text-sm text-white" data-i18n="modal_rate_title">Actualizar Precio del Dólar</h3>
+        </div>
+        <button onclick="closeExchangeRateModal()" class="w-7 h-7 rounded-lg bg-[#2C2C34] text-gray-400 hover:text-white flex items-center justify-center">
+          <span class="material-symbols-rounded text-base">close</span>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4">
+        <div>
+          <label class="block text-xs font-bold uppercase text-gray-400 mb-1" data-i18n="lbl_rate_input">Tasa de Cambio Oficial (Bs. por 1 USD)</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-gray-400 text-sm">Bs.</span>
+            <input type="number" id="input-new-rate" step="0.01" min="0.1" class="w-full pl-10 pr-3 py-2 rounded-xl bg-[#141418] border border-[#2C2C34] text-sm font-mono text-white focus:outline-none focus:border-[var(--accent-color)]">
+          </div>
+          <p class="text-[10px] text-gray-500 mt-1" data-i18n="rate_note">Todos los precios en Bolívares se actualizarán automáticamente en tiempo real.</p>
+        </div>
+      </div>
+
+      <div class="p-4 bg-[#18181C] border-t border-[#2C2C34] flex items-center justify-end gap-2">
+        <button onclick="closeExchangeRateModal()" class="px-3 py-1.5 rounded-lg bg-[#2C2C34] text-xs text-gray-300">Cancelar</button>
+        <button onclick="saveExchangeRate()" class="px-4 py-1.5 rounded-lg bg-[var(--accent-color)] text-black font-extrabold text-xs hover:opacity-90">Actualizar Tasa</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 6. COMPANY LOGO UPLOAD MODAL -->
+  <div id="modal-logo-upload" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#1E1E24] border border-[#3E3E4A] rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl animate-enter">
+      
+      <div class="p-4 border-b border-[#2C2C34] flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-rounded custom-accent-text text-xl">badge</span>
+          <h3 class="font-extrabold text-sm text-white" data-i18n="modal_logo_title">Logotipo de la Empresa</h3>
+        </div>
+        <button onclick="closeLogoUploadModal()" class="w-7 h-7 rounded-lg bg-[#2C2C34] text-gray-400 hover:text-white flex items-center justify-center">
+          <span class="material-symbols-rounded text-base">close</span>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4 text-center">
+        <div class="w-24 h-24 mx-auto rounded-2xl bg-[#141418] border border-[#2C2C34] flex items-center justify-center overflow-hidden">
+          <img id="logo-preview-modal-img" src="" class="w-full h-full object-cover hidden">
+          <span id="logo-preview-modal-placeholder" class="material-symbols-rounded text-4xl text-gray-500">storefront</span>
+        </div>
+
+        <div>
+          <input type="file" id="logo-file-input" accept="image/*" onchange="handleLogoFileSelect(event)" class="hidden">
+          <button onclick="document.getElementById('logo-file-input').click()" class="px-4 py-2 rounded-xl bg-[var(--accent-color)]/20 hover:bg-[var(--accent-color)]/30 border border-[var(--accent-color)]/40 custom-accent-text text-xs font-bold transition-all">
+            Cargar Imagen de Logotipo
+          </button>
+          <p class="text-[11px] text-gray-400 mt-2">Ubicado en la esquina superior izquierda. No se borrará al reiniciar la aplicación.</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-400 text-left mb-1">Nombre de la Tienda</label>
+          <input type="text" id="input-store-title-edit" placeholder="Mi Tienda" class="w-full px-3 py-2 rounded-xl bg-[#141418] border border-[#2C2C34] text-xs text-white">
+        </div>
+      </div>
+
+      <div class="p-4 bg-[#18181C] border-t border-[#2C2C34] flex items-center justify-between">
+        <button onclick="removeLogo()" class="text-xs text-rose-400 hover:underline">Eliminar Logo</button>
+        <div class="flex gap-2">
+          <button onclick="closeLogoUploadModal()" class="px-3 py-1.5 rounded-lg bg-[#2C2C34] text-xs text-gray-300">Cerrar</button>
+          <button onclick="saveStoreInfo()" class="px-4 py-1.5 rounded-lg bg-[var(--accent-color)] text-black font-extrabold text-xs">Guardar</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 7. QUICK PRODUCT SELECTOR MODAL (When clicking "Agregar otro producto") -->
+  <div id="modal-product-selector" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#1E1E24] border border-[#3E3E4A] rounded-2xl max-w-md w-full max-h-[80vh] flex flex-col overflow-hidden shadow-2xl animate-enter">
+      <div class="p-4 border-b border-[#2C2C34] flex items-center justify-between">
+        <h3 class="font-extrabold text-sm text-white" data-i18n="modal_select_more_title">Seleccionar Otro Producto</h3>
+        <button onclick="closeProductSelector()" class="w-7 h-7 rounded-lg bg-[#2C2C34] text-gray-400 hover:text-white flex items-center justify-center">
+          <span class="material-symbols-rounded text-base">close</span>
+        </button>
+      </div>
+      <div id="product-selector-list" class="p-4 overflow-y-auto space-y-2 flex-1">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. CATEGORY MANAGEMENT MODAL (Modificar Categorías de Productos) -->
+  <div id="modal-category-manager" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#1E1E24] border border-[#3E3E4A] rounded-2xl max-w-md w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-enter">
+      
+      <!-- Header -->
+      <div class="p-4 sm:p-5 border-b border-[#2C2C34] flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-rounded custom-accent-text text-2xl">category</span>
+          <div>
+            <h3 class="font-extrabold text-base text-white" data-i18n="modal_cats_title">Modificar Categorías</h3>
+            <p class="text-xs text-gray-400" data-i18n="modal_cats_subtitle">Crear, renombrar o eliminar categorías de productos</p>
+          </div>
+        </div>
+        <button onclick="closeCategoryManagerModal()" class="w-8 h-8 rounded-lg bg-[#2C2C34] hover:bg-[#363640] text-gray-400 hover:text-white flex items-center justify-center">
+          <span class="material-symbols-rounded text-lg">close</span>
+        </button>
+      </div>
+
+      <!-- Content -->
+      <div class="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
+        
+        <!-- Add New Category Box -->
+        <div class="p-3.5 rounded-xl bg-[#141418] border border-[#2C2C34] space-y-2">
+          <label class="block text-xs font-bold uppercase text-gray-400" data-i18n="lbl_add_new_cat">Nueva Categoría</label>
+          <div class="flex items-center gap-2">
+            <input type="text" id="input-new-cat-name" onkeydown="if(event.key==='Enter'){event.preventDefault();handleAddNewCategory();}" placeholder="Ej. Frutas, Charcutería, Ferretería..." class="flex-1 px-3 py-2 rounded-xl bg-[#1E1E24] border border-[#2C2C34] text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[var(--accent-color)]">
+            <button type="button" onclick="handleAddNewCategory()" class="px-3.5 py-2 rounded-xl bg-[var(--accent-color)] text-black font-bold text-xs hover:opacity-90 transition-opacity flex items-center gap-1 shrink-0">
+              <span class="material-symbols-rounded text-base font-bold">add</span>
+              <span data-i18n="btn_add_cat">Agregar</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Current Categories List -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <div>
+              <label class="block text-xs font-bold uppercase text-gray-400 tracking-wider" data-i18n="lbl_existing_cats">Categorías Disponibles</label>
+              <p class="text-[11px] text-gray-500" data-i18n="lbl_category_order_hint">Ordena las categorías para definir su prioridad en el catálogo</p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button type="button" onclick="sortCategoriesAlphabetically()" title="Ordenar categorías alfabéticamente A-Z" class="px-2 py-1 rounded-lg bg-[#2C2C34] hover:bg-[#363640] text-gray-300 hover:text-white text-[11px] font-semibold flex items-center gap-1 border border-[#3E3E4A] transition-colors cursor-pointer">
+                <span class="material-symbols-rounded text-sm">sort_by_alpha</span>
+                <span data-i18n="btn_sort_cats_az">A-Z</span>
+              </button>
+              <span id="cat-count-badge" class="text-xs text-gray-400 font-mono">0 categorías</span>
+            </div>
+          </div>
+          
+          <div id="category-manager-list" class="space-y-2">
+            <!-- Injected via JavaScript -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="p-4 bg-[#18181C] border-t border-[#2C2C34] flex items-center justify-end">
+        <button type="button" onclick="closeCategoryManagerModal()" class="px-5 py-2 rounded-xl bg-[#2C2C34] hover:bg-[#363640] text-xs font-bold text-white transition-colors">
+          Cerrar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 8. DIRECT IMAGE SHARE / PREVIEW MODAL (Shares directly without downloading) -->
+  <div id="modal-share-preview" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#1E1E24] border border-[#3E3E4A] rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl animate-enter flex flex-col max-h-[90vh]">
+      <div class="p-3.5 border-b border-[#2C2C34] flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-lg bg-[var(--accent-color)]/20 flex items-center justify-center custom-accent-text">
+            <span class="material-symbols-rounded text-base">share</span>
+          </div>
+          <h3 id="share-preview-title" class="text-xs sm:text-sm font-bold text-white truncate max-w-[200px]">Compartir Imagen Directa</h3>
+        </div>
+        <button type="button" onclick="closeShareDirectModal()" class="text-gray-400 hover:text-white p-1 rounded-lg">
+          <span class="material-symbols-rounded text-lg">close</span>
+        </button>
+      </div>
+
+      <div class="p-3.5 space-y-3 overflow-y-auto flex-1">
+        <div id="share-copied-banner" class="hidden p-2.5 rounded-xl bg-emerald-950/70 border border-emerald-800/80 text-emerald-300 text-xs flex items-center gap-2">
+          <span class="material-symbols-rounded text-lg text-emerald-400 shrink-0">check_circle</span>
+          <span class="leading-snug">¡Copiado al portapapeles! Puedes pegarlo directamente (Ctrl+V) en WhatsApp, Telegram o chat.</span>
+        </div>
+
+        <div class="rounded-xl overflow-hidden border border-[#2C2C34] bg-[#121216] flex items-center justify-center p-2">
+          <img id="share-preview-img" src="" alt="Comprobante" class="max-h-[46vh] w-auto object-contain rounded-lg shadow" />
+        </div>
+        
+        <p class="text-[11px] text-gray-400 text-center leading-relaxed">
+          Mantén presionada la imagen para copiar o reenviar directamente a WhatsApp.
+        </p>
+      </div>
+
+      <div class="p-3 bg-[#18181C] border-t border-[#2C2C34] space-y-2">
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" onclick="copyActiveShareImage()" class="py-2.5 px-3 rounded-xl bg-[#2C2C34] hover:bg-[#363640] text-xs font-bold text-white flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+            <span class="material-symbols-rounded text-base">content_copy</span>
+            <span>Copiar Imagen</span>
+          </button>
+          <button type="button" onclick="triggerWebShareActive()" class="py-2.5 px-3 rounded-xl bg-[var(--accent-color)] text-black text-xs font-bold flex items-center justify-center gap-1.5 transition-colors hover:opacity-90 cursor-pointer shadow">
+            <span class="material-symbols-rounded text-base">send</span>
+            <span>Compartir</span>
+          </button>
+        </div>
+        <div class="flex items-center justify-between pt-1 text-[11px] text-gray-400 px-1">
+          <button type="button" onclick="downloadActiveShareImage()" class="text-gray-400 hover:text-gray-200 underline decoration-dotted flex items-center gap-1 cursor-pointer">
+            <span class="material-symbols-rounded text-sm">download</span>
+            <span>Descargar archivo</span>
+          </button>
+          <button type="button" onclick="closeShareDirectModal()" class="hover:text-white cursor-pointer">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. REUSABLE CUSTOM CONFIRMATION MODAL (100% iframe-safe, replaces native confirm) -->
+  <div id="modal-custom-confirm" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#1E1E24] border border-[#3E3E4A] rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl animate-enter">
+      <div class="p-5 text-center space-y-3">
+        <div id="confirm-icon-bg" class="w-14 h-14 mx-auto rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400">
+          <span id="confirm-icon" class="material-symbols-rounded text-3xl">delete</span>
+        </div>
+        <div>
+          <h3 id="confirm-modal-title" class="text-base font-extrabold text-white">¿Eliminar Producto?</h3>
+          <p id="confirm-modal-msg" class="text-xs text-gray-300 mt-1.5 leading-relaxed">Esta acción no se puede deshacer.</p>
+        </div>
+      </div>
+      <div class="p-3.5 bg-[#18181C] border-t border-[#2C2C34] grid grid-cols-2 gap-2">
+        <button type="button" id="btn-confirm-cancel" onclick="closeCustomConfirm()" class="px-4 py-2.5 rounded-xl bg-[#2C2C34] hover:bg-[#363640] text-xs font-bold text-gray-300 transition-colors">
+          Cancelar
+        </button>
+        <button type="button" id="btn-confirm-action" class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-xs font-bold text-white transition-colors shadow-md">
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. BURGER FLAVOR SELECTOR MODAL (Carne, Pollo, Chuleta, Chorizo) -->
+  <div id="modal-burger-flavor" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#1E1E24] border border-[#3E3E4A] rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl animate-enter">
+      <div class="p-4 sm:p-5 border-b border-[#2C2C34] flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🍔</span>
+          <div>
+            <h3 class="font-extrabold text-base sm:text-lg text-white" id="burger-flavor-title">¿Cuál es el Sabor?</h3>
+            <p class="text-xs text-gray-400" id="burger-flavor-subtitle">Selecciona el sabor de la carne para preparar la orden</p>
+          </div>
+        </div>
+        <button onclick="closeBurgerFlavorModal()" class="w-8 h-8 rounded-lg bg-[#2C2C34] hover:bg-[#363640] text-gray-400 hover:text-white flex items-center justify-center cursor-pointer">
+          <span class="material-symbols-rounded text-lg">close</span>
+        </button>
+      </div>
+
+      <div class="p-4 sm:p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+        <!-- Target Product Info Card -->
+        <div class="p-3 rounded-xl bg-[#18181C] border border-[#2C2C34] flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold text-white" id="burger-flavor-product-name">Hamburguesa</p>
+            <p class="text-[11px] text-amber-400" id="burger-flavor-combo-info">1 hamburguesa</p>
+          </div>
+          <span class="text-sm font-black text-white font-mono" id="burger-flavor-product-price">$0.00</span>
+        </div>
+
+        <!-- Flavor Selector Container (Supports single or multi-burger combos) -->
+        <div id="burger-flavor-options-container" class="space-y-4">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+
+      <div class="p-4 bg-[#18181C] border-t border-[#2C2C34] flex items-center justify-between gap-3">
+        <button type="button" onclick="closeBurgerFlavorModal()" class="px-4 py-2.5 rounded-xl bg-[#2C2C34] hover:bg-[#363640] text-xs font-bold text-gray-300 transition-colors cursor-pointer">
+          Cancelar
+        </button>
+        <button type="button" onclick="confirmBurgerFlavorSelection()" class="flex-1 px-4 py-2.5 rounded-xl custom-accent-bg text-black text-xs font-black shadow-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2 cursor-pointer">
+          <span class="material-symbols-rounded text-base">add_shopping_cart</span>
+          <span>Agregar a la Venta</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11. INVENTORY ITEM ADD / EDIT MODAL -->
+  <div id="modal-inventory-item" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#1E1E24] border border-[#3E3E4A] rounded-2xl max-w-md w-full overflow-hidden shadow-2xl animate-enter">
+      <div class="p-4 sm:p-5 border-b border-[#2C2C34] flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-rounded text-amber-400 text-2xl">add_box</span>
+          <div>
+            <h3 class="font-extrabold text-base sm:text-lg text-white" id="modal-inv-title">Agregar Insumo al Inventario</h3>
+            <p class="text-xs text-gray-400">Se sincronizará en todos los dispositivos conectados</p>
+          </div>
+        </div>
+        <button onclick="closeInventoryItemModal()" class="w-8 h-8 rounded-lg bg-[#2C2C34] hover:bg-[#363640] text-gray-400 hover:text-white flex items-center justify-center cursor-pointer">
+          <span class="material-symbols-rounded text-lg">close</span>
+        </button>
+      </div>
+
+      <form id="form-inventory-item" onsubmit="saveInventoryItem(event)" class="p-4 sm:p-5 space-y-4">
+        <input type="hidden" id="inv-item-id" value="">
+
+        <div>
+          <label class="block text-xs font-bold text-gray-300 mb-1">Nombre del Insumo / Materia Prima *</label>
+          <input type="text" id="inv-item-name" required placeholder="Ej: Pan de perros, Carne molida, Refresco..." class="w-full px-3 py-2 rounded-xl bg-[#121214] border border-[#2C2C34] text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-400">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-gray-300 mb-1">Categoría *</label>
+            <select id="inv-item-category" required class="w-full px-3 py-2 rounded-xl bg-[#121214] border border-[#2C2C34] text-xs text-white focus:outline-none focus:border-amber-400">
+              <option value="Proteínas">Proteínas / Carnes</option>
+              <option value="Panes">Panes</option>
+              <option value="Embutidos">Embutidos</option>
+              <option value="Bebidas">Bebidas</option>
+              <option value="Lácteos">Lácteos / Quesos</option>
+              <option value="Salsas">Salsas e Insumos</option>
+              <option value="Guarniciones">Guarniciones</option>
+              <option value="Otros">Otros</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-300 mb-1">Unidad de Medida *</label>
+            <select id="inv-item-unit" required class="w-full px-3 py-2 rounded-xl bg-[#121214] border border-[#2C2C34] text-xs text-white focus:outline-none focus:border-amber-400">
+              <option value="und">Unidades (und)</option>
+              <option value="porciones">Porciones</option>
+              <option value="botellas">Botellas / Latas</option>
+              <option value="kg">Kilogramos (kg)</option>
+              <option value="paquetes">Paquetes</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-gray-300 mb-1">Stock Inicial *</label>
+            <input type="number" id="inv-item-stock" min="0" step="1" required placeholder="50" class="w-full px-3 py-2 rounded-xl bg-[#121214] border border-[#2C2C34] text-xs text-white font-mono placeholder-gray-500 focus:outline-none focus:border-amber-400">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-300 mb-1">Alerta Stock Bajo *</label>
+            <input type="number" id="inv-item-alert" min="1" step="1" required placeholder="10" class="w-full px-3 py-2 rounded-xl bg-[#121214] border border-[#2C2C34] text-xs text-white font-mono placeholder-gray-500 focus:outline-none focus:border-amber-400">
+          </div>
+        </div>
+
+        <div class="p-3 bg-[#18181C] rounded-xl border border-[#2C2C34] flex items-center justify-end gap-2 pt-3">
+          <button type="button" onclick="closeInventoryItemModal()" class="px-4 py-2 rounded-xl bg-[#2C2C34] hover:bg-[#363640] text-xs font-bold text-gray-300 transition-colors cursor-pointer">
+            Cancelar
+          </button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold transition-all shadow-md cursor-pointer">
+            Guardar Insumo
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 12. REPORT DAMAGED PRODUCT / MERMA MODAL -->
+  <div id="modal-report-damage" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#1E1E24] border border-rose-500/40 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl animate-enter">
+      <div class="p-4 sm:p-5 border-b border-[#2C2C34] flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400">
+            <span class="material-symbols-rounded text-xl">report_problem</span>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-base sm:text-lg text-white">Reportar Insumo Dañado o Merma</h3>
+            <p class="text-xs text-rose-400/90">Se descontará automáticamente del inventario</p>
+          </div>
+        </div>
+        <button onclick="closeReportDamageModal()" class="w-8 h-8 rounded-lg bg-[#2C2C34] hover:bg-[#363640] text-gray-400 hover:text-white flex items-center justify-center cursor-pointer">
+          <span class="material-symbols-rounded text-lg">close</span>
+        </button>
+      </div>
+
+      <form id="form-report-damage" onsubmit="submitDamageReport(event)" class="p-4 sm:p-5 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-gray-300 mb-1">Insumo o Ingrediente Afectado *</label>
+          <select id="damage-item-id" required onchange="handleDamageItemSelected()" class="w-full px-3 py-2 rounded-xl bg-[#121214] border border-[#2C2C34] text-xs text-white focus:outline-none focus:border-rose-400">
+            <!-- Injected via JavaScript -->
+          </select>
+          <p id="damage-item-current-stock" class="text-[11px] text-gray-400 mt-1">Stock actual disponible: --</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-gray-300 mb-1">Cantidad a Descontar *</label>
+            <input type="number" id="damage-item-qty" min="1" step="1" required placeholder="1" class="w-full px-3 py-2 rounded-xl bg-[#121214] border border-[#2C2C34] text-xs text-white font-mono placeholder-gray-500 focus:outline-none focus:border-rose-400">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-300 mb-1">Causa / Motivo *</label>
+            <select id="damage-item-reason" required class="w-full px-3 py-2 rounded-xl bg-[#121214] border border-[#2C2C34] text-xs text-white focus:outline-none focus:border-rose-400">
+              <option value="Mal estado / Vencido">Mal estado / Vencido</option>
+              <option value="Quemado al cocinar">Quemado al cocinar</option>
+              <option value="Caído / Roto al manipular">Caído / Roto al manipular</option>
+              <option value="Derrame / Empaque dañado">Derrame / Empaque dañado</option>
+              <option value="Merma de preparación">Merma de preparación</option>
+              <option value="Otro motivo">Otro motivo</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-300 mb-1">Detalle o Notas (Opcional)</label>
+          <input type="text" id="damage-item-notes" placeholder="Ej: Se cayó el pan al abrir el paquete..." class="w-full px-3 py-2 rounded-xl bg-[#121214] border border-[#2C2C34] text-xs text-white placeholder-gray-500 focus:outline-none focus:border-rose-400">
+        </div>
+
+        <div class="p-3 bg-[#18181C] rounded-xl border border-[#2C2C34] flex items-center justify-end gap-2 pt-3">
+          <button type="button" onclick="closeReportDamageModal()" class="px-4 py-2 rounded-xl bg-[#2C2C34] hover:bg-[#363640] text-xs font-bold text-gray-300 transition-colors cursor-pointer">
+            Cancelar
+          </button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer">
+            <span class="material-symbols-rounded text-sm">remove_circle</span>
+            <span>Descontar del Inventario</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 13. WI-FI SYNC & PUBLIC SHARING MODAL (Sin solicitar correo de Google ni cuentas) -->
+  <div id="modal-wifi-sync" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#1E1E24] border border-[#3E3E4A] rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl animate-enter">
+      <div class="p-4 sm:p-5 border-b border-[#2C2C34] flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+            <span class="material-symbols-rounded text-xl">share</span>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-base sm:text-lg text-white">Compartir App con Otros Dispositivos</h3>
+            <p class="text-xs text-emerald-400">Sin solicitar tu cuenta Google ni correo electrónico</p>
+          </div>
+        </div>
+        <button onclick="closeWifiSyncModal()" class="w-8 h-8 rounded-lg bg-[#2C2C34] hover:bg-[#363640] text-gray-400 hover:text-white flex items-center justify-center cursor-pointer">
+          <span class="material-symbols-rounded text-lg">close</span>
+        </button>
+      </div>
+
+      <!-- Navigation Tabs: Enlace Público vs Red Wi-Fi vs APK Android -->
+      <div class="flex border-b border-[#2C2C34] bg-[#141418] px-3 pt-2 gap-1 text-xs font-bold">
+        <button type="button" id="tab-btn-share-public" onclick="switchShareTab('public')" class="px-3 py-2 rounded-t-xl border-b-2 border-emerald-400 text-emerald-400 font-extrabold flex items-center gap-1.5 transition-colors cursor-pointer">
+          <span class="material-symbols-rounded text-base">public</span>
+          <span>Enlace Sin Correo</span>
+        </button>
+        <button type="button" id="tab-btn-share-wifi" onclick="switchShareTab('wifi')" class="px-3 py-2 rounded-t-xl border-b-2 border-transparent text-gray-400 hover:text-gray-200 flex items-center gap-1.5 transition-colors cursor-pointer">
+          <span class="material-symbols-rounded text-base">wifi</span>
+          <span>Wi-Fi Local</span>
+        </button>
+        <button type="button" id="tab-btn-share-apk" onclick="switchShareTab('apk')" class="px-3 py-2 rounded-t-xl border-b-2 border-transparent text-gray-400 hover:text-gray-200 flex items-center gap-1.5 transition-colors cursor-pointer">
+          <span class="material-symbols-rounded text-base">android</span>
+          <span>Instalar APK</span>
+        </button>
+      </div>
+
+      <div class="p-4 sm:p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+
+        <!-- TAB 1: ENLACE PÚBLICO COMPARTIBLE (Sin pedir correo Google) -->
+        <div id="share-view-public" class="space-y-3.5">
+          <div class="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-xs text-emerald-300 space-y-1">
+            <div class="flex items-center gap-2 font-bold text-emerald-400">
+              <span class="material-symbols-rounded text-lg">check_circle</span>
+              <span>100% Sin Cuenta ni Correo de Google</span>
+            </div>
+            <p class="text-[11px] leading-relaxed text-gray-300">
+              Al compartir este enlace público o escanear el código QR, cualquier celular, tablet o computadora abre la aplicación directamente <strong>sin que Google solicite tu correo ni contraseña</strong>.
+            </p>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-[#18181C] border border-[#2C2C34] text-center space-y-3">
+            <p class="text-xs font-bold text-white uppercase tracking-wider">Escanea con la Cámara del Celular o Tablet</p>
+            
+            <div class="flex justify-center my-1">
+              <div class="p-2.5 bg-white rounded-2xl shadow-lg inline-block">
+                <img id="public-qr-img" src="" alt="Código QR Enlace Público" class="w-40 h-40 object-contain hidden" />
+                <canvas id="wifi-qr-canvas" width="160" height="160"></canvas>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <div class="flex items-center gap-2">
+                <input type="text" id="wifi-network-url" readonly value="" class="flex-1 px-3 py-2 rounded-xl bg-[#121214] border border-[#2C2C34] text-xs text-emerald-400 font-mono focus:outline-none">
+                <button type="button" onclick="copyNetworkLink()" class="px-3 py-2 rounded-xl bg-[#2C2C34] hover:bg-[#363640] text-xs font-bold text-white transition-colors flex items-center gap-1 cursor-pointer">
+                  <span class="material-symbols-rounded text-sm">content_copy</span>
+                  <span>Copiar</span>
+                </button>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 pt-1">
+                <button type="button" onclick="shareViaWhatsApp()" class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow">
+                  <span class="material-symbols-rounded text-base">chat</span>
+                  <span>Enviar por WhatsApp</span>
+                </button>
+                <button type="button" onclick="openPublicLinkInNewTab()" class="py-2.5 px-3 rounded-xl bg-[#2C2C34] hover:bg-[#363640] text-gray-200 hover:text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-[#3E3E4A]">
+                  <span class="material-symbols-rounded text-base">open_in_new</span>
+                  <span>Abrir en Navegador</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: RED WI-FI LOCAL (Sincronización en red del negocio) -->
+        <div id="share-view-wifi" class="hidden space-y-3.5">
+          <div class="p-4 rounded-2xl bg-[#18181C] border border-[#2C2C34] space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></span>
+                <span class="text-xs font-bold text-white uppercase tracking-wider">Estado de la Red Wi-Fi:</span>
+              </div>
+              <span id="wifi-modal-status-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                Conectado y Sincronizado
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-xs text-gray-300 pt-1">
+              <div class="p-2.5 rounded-xl bg-[#121214] border border-[#2C2C34]">
+                <span class="text-gray-400 block text-[10px] uppercase font-bold">PIN de Vinculación</span>
+                <span id="wifi-pairing-pin" class="text-lg font-black text-amber-400 font-mono">8492</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-[#121214] border border-[#2C2C34]">
+                <span class="text-gray-400 block text-[10px] uppercase font-bold">Terminales Vinculados</span>
+                <span id="wifi-connected-clients" class="text-lg font-black text-white font-mono">1 Activo</span>
+              </div>
+            </div>
+
+            <!-- Role Configuration & Operator Security Notice -->
+            <div class="pt-2 border-t border-[#2C2C34] space-y-2">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                  <span class="material-symbols-rounded text-sm custom-accent-text">security</span>
+                  <span>Modo de este Dispositivo:</span>
+                </label>
+                <span id="wifi-current-role-badge" class="text-xs font-mono font-bold text-amber-300">Caja Central</span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" id="btn-role-host" onclick="setDeviceRole('host')" class="p-2.5 rounded-xl border text-left text-xs transition-all cursor-pointer border-amber-400/60 bg-amber-500/10 text-white font-semibold">
+                  <div class="flex items-center gap-1.5 font-bold text-amber-300 mb-0.5">
+                    <span class="material-symbols-rounded text-base">storefront</span>
+                    <span>Caja Central</span>
+                  </div>
+                  <p class="text-[11px] text-gray-400">Emite datos y administra precios e insumos</p>
+                </button>
+
+                <button type="button" id="btn-role-terminal" onclick="setDeviceRole('terminal')" class="p-2.5 rounded-xl border text-left text-xs transition-all cursor-pointer border-[#2C2C34] bg-[#121214] text-gray-300 hover:text-white">
+                  <div class="flex items-center gap-1.5 font-bold text-sky-400 mb-0.5">
+                    <span class="material-symbols-rounded text-base">tablet_mac</span>
+                    <span>Terminal Operador</span>
+                  </div>
+                  <p class="text-[11px] text-gray-400">Ventas e inventario sin acceso al editor</p>
+                </button>
+              </div>
+            </div>
+
+            <div class="pt-2">
+              <label class="block text-[11px] font-bold text-gray-400 mb-1">Dirección IP Local en la Red:</label>
+              <div class="flex items-center gap-2">
+                <input type="text" id="wifi-local-ip-url" readonly value="" class="flex-1 px-3 py-2 rounded-xl bg-[#121214] border border-[#2C2C34] text-xs text-gray-300 font-mono focus:outline-none">
+                <button type="button" onclick="copyLocalIpLink()" class="px-3 py-2 rounded-xl bg-[#2C2C34] hover:bg-[#363640] text-xs font-bold text-white transition-colors flex items-center gap-1 cursor-pointer">
+                  <span class="material-symbols-rounded text-sm">content_copy</span>
+                  <span>Copiar IP</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: DESCARGAR E INSTALAR APK ANDROID -->
+        <div id="share-view-apk" class="hidden space-y-3.5">
+          <div class="p-4 rounded-2xl bg-[#18181C] border border-[#2C2C34] text-center space-y-3">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
+              <span class="material-symbols-rounded text-3xl">android</span>
+            </div>
+            <div>
+              <h4 class="font-extrabold text-white text-sm">Instalar Aplicación Nativa Android (APK)</h4>
+              <p class="text-xs text-gray-300 mt-1 max-w-sm mx-auto leading-relaxed">
+                Descarga e instala el archivo APK directamente en tu teléfono o tablet. Funciona 100% offline sin necesidad de navegador ni cuentas de correo.
+              </p>
+            </div>
+
+            <div class="pt-2">
+              <a href="/download/app-debug.apk" download="ControlVentasTienda-debug.apk" class="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs shadow-lg transition-transform active:scale-95 cursor-pointer">
+                <span class="material-symbols-rounded text-lg">download</span>
+                <span>Descargar APK (ControlVentas.apk)</span>
+              </a>
+            </div>
+
+            <p class="text-[10px] text-gray-500">
+              Compatible con Android 7.0 hasta Android 16 (API 24 - 36).
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="p-4 bg-[#18181C] border-t border-[#2C2C34] flex items-center justify-between">
+        <button type="button" onclick="forceNetworkSync()" class="px-3.5 py-2 rounded-xl bg-[#2C2C34] hover:bg-[#363640] text-xs font-bold text-white transition-colors flex items-center gap-1.5 cursor-pointer">
+          <span class="material-symbols-rounded text-sm text-emerald-400">sync</span>
+          <span>Sincronizar Ahora</span>
+        </button>
+        <button type="button" onclick="closeWifiSyncModal()" class="px-5 py-2 rounded-xl custom-accent-bg text-black text-xs font-bold transition-opacity hover:opacity-90 cursor-pointer">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS (100% iframe-safe, replaces native alert) -->
+  <div id="toast-container" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-[110] flex flex-col items-center gap-2 pointer-events-none px-4 w-full max-w-sm"></div>
+
+  <!-- HIDDEN CANVAS FOR IMAGE RENDERING -->
+  <canvas id="export-canvas" class="hidden"></canvas>
+
+  <!-- ANDROID 4 POLYFILLS (WebKit / Chromium 30 / API 14-19) -->
+  <script src="/polyfills.js"></script>
+  <!-- APP JAVASCRIPT LOGIC (ES5 COMPATIBLE) -->
+  <script src="/app.js"></script>
+</body>
+</html>

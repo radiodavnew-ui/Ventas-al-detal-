@@ -1,0 +1,14 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "chrome": "30",
+          "android": "4.0"
+        },
+        "modules": false
+      }
+    ]
+  ]
+}
